@@ -11,6 +11,9 @@
 		C8837E972CEC28090048B213 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837E962CEC28090048B213 /* ContentView.swift */; };
 		C8837E992CEC280C0048B213 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8837E982CEC280C0048B213 /* Assets.xcassets */; };
 		C8837E9C2CEC280C0048B213 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8837E9B2CEC280C0048B213 /* Preview Assets.xcassets */; };
+		C8837EA62CEC2CB90048B213 /* BLEController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA52CEC2CB90048B213 /* BLEController.swift */; };
+		C8837EA82CEC66C40048B213 /* Codec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA72CEC66C40048B213 /* Codec.swift */; };
+		C8837EAA2CED28AB0048B213 /* L2CAPMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA92CED28AB0048B213 /* L2CAPMessage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +22,9 @@
 		C8837E962CEC28090048B213 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C8837E982CEC280C0048B213 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C8837E9B2CEC280C0048B213 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C8837EA52CEC2CB90048B213 /* BLEController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEController.swift; sourceTree = "<group>"; };
+		C8837EA72CEC66C40048B213 /* Codec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Codec.swift; sourceTree = "<group>"; };
+		C8837EA92CED28AB0048B213 /* L2CAPMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L2CAPMessage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +59,9 @@
 			children = (
 				C8837E942CEC28090048B213 /* VESSELApp.swift */,
 				C8837E962CEC28090048B213 /* ContentView.swift */,
+				C8837EA52CEC2CB90048B213 /* BLEController.swift */,
+				C8837EA92CED28AB0048B213 /* L2CAPMessage.swift */,
+				C8837EA72CEC66C40048B213 /* Codec.swift */,
 				C8837E982CEC280C0048B213 /* Assets.xcassets */,
 				C8837E9A2CEC280C0048B213 /* Preview Content */,
 			);
@@ -137,8 +146,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8837EA82CEC66C40048B213 /* Codec.swift in Sources */,
 				C8837E972CEC28090048B213 /* ContentView.swift in Sources */,
+				C8837EAA2CED28AB0048B213 /* L2CAPMessage.swift in Sources */,
 				C8837E952CEC28090048B213 /* VESSELApp.swift in Sources */,
+				C8837EA62CEC2CB90048B213 /* BLEController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
