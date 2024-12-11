@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,7 +13,9 @@
 		C8837E9C2CEC280C0048B213 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C8837E9B2CEC280C0048B213 /* Preview Assets.xcassets */; };
 		C8837EA62CEC2CB90048B213 /* BLEController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA52CEC2CB90048B213 /* BLEController.swift */; };
 		C8837EA82CEC66C40048B213 /* Codec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA72CEC66C40048B213 /* Codec.swift */; };
-		C8837EAA2CED28AB0048B213 /* L2CAPMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA92CED28AB0048B213 /* L2CAPMessage.swift */; };
+		C8837EAA2CED28AB0048B213 /* CustomProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA92CED28AB0048B213 /* CustomProtocol.swift */; };
+		C8903B9F2D08A42D0025A964 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8903B9E2D08A42D0025A964 /* extension.swift */; };
+		C8903BA22D090B420025A964 /* QOA in Frameworks */ = {isa = PBXBuildFile; productRef = C8903BA12D090B420025A964 /* QOA */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,7 +26,9 @@
 		C8837E9B2CEC280C0048B213 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C8837EA52CEC2CB90048B213 /* BLEController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEController.swift; sourceTree = "<group>"; };
 		C8837EA72CEC66C40048B213 /* Codec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Codec.swift; sourceTree = "<group>"; };
-		C8837EA92CED28AB0048B213 /* L2CAPMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L2CAPMessage.swift; sourceTree = "<group>"; };
+		C8837EA92CED28AB0048B213 /* CustomProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomProtocol.swift; sourceTree = "<group>"; };
+		C8837EAE2CEF95CC0048B213 /* QOA */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = QOA; path = ../QOA; sourceTree = "<group>"; };
+		C8903B9E2D08A42D0025A964 /* extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +36,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8903BA22D090B420025A964 /* QOA in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,8 +46,10 @@
 		C8837E882CEC28090048B213 = {
 			isa = PBXGroup;
 			children = (
+				C8837EAE2CEF95CC0048B213 /* QOA */,
 				C8837E932CEC28090048B213 /* VESSEL */,
 				C8837E922CEC28090048B213 /* Products */,
+				C8837EAF2CEF9A850048B213 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -60,8 +67,9 @@
 				C8837E942CEC28090048B213 /* VESSELApp.swift */,
 				C8837E962CEC28090048B213 /* ContentView.swift */,
 				C8837EA52CEC2CB90048B213 /* BLEController.swift */,
-				C8837EA92CED28AB0048B213 /* L2CAPMessage.swift */,
+				C8837EA92CED28AB0048B213 /* CustomProtocol.swift */,
 				C8837EA72CEC66C40048B213 /* Codec.swift */,
+				C8903B9E2D08A42D0025A964 /* extension.swift */,
 				C8837E982CEC280C0048B213 /* Assets.xcassets */,
 				C8837E9A2CEC280C0048B213 /* Preview Content */,
 			);
@@ -74,6 +82,13 @@
 				C8837E9B2CEC280C0048B213 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C8837EAF2CEF9A850048B213 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -92,6 +107,9 @@
 			dependencies = (
 			);
 			name = VESSEL;
+			packageProductDependencies = (
+				C8903BA12D090B420025A964 /* QOA */,
+			);
 			productName = VESSEL;
 			productReference = C8837E912CEC28090048B213 /* VESSEL.app */;
 			productType = "com.apple.product-type.application";
@@ -120,6 +138,9 @@
 				Base,
 			);
 			mainGroup = C8837E882CEC28090048B213;
+			packageReferences = (
+				C8903BA02D090B420025A964 /* XCLocalSwiftPackageReference "../QOA" */,
+			);
 			productRefGroup = C8837E922CEC28090048B213 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -148,7 +169,8 @@
 			files = (
 				C8837EA82CEC66C40048B213 /* Codec.swift in Sources */,
 				C8837E972CEC28090048B213 /* ContentView.swift in Sources */,
-				C8837EAA2CED28AB0048B213 /* L2CAPMessage.swift in Sources */,
+				C8837EAA2CED28AB0048B213 /* CustomProtocol.swift in Sources */,
+				C8903B9F2D08A42D0025A964 /* extension.swift in Sources */,
 				C8837E952CEC28090048B213 /* VESSELApp.swift in Sources */,
 				C8837EA62CEC2CB90048B213 /* BLEController.swift in Sources */,
 			);
@@ -358,6 +380,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		C8903BA02D090B420025A964 /* XCLocalSwiftPackageReference "../QOA" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../QOA;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C8903BA12D090B420025A964 /* QOA */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = QOA;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C8837E892CEC28090048B213 /* Project object */;
 }

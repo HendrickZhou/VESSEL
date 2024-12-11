@@ -99,6 +99,7 @@ struct L2CAPMessage {
         case control = 0x02
         case error = 0x03
         case ack = 0x04
+        case info = 0x05
     }
     
     let type: MessageType
@@ -148,8 +149,6 @@ struct L2CAPMessage {
         return data.reduce(0, ^) // XOR
     }
 }
-
-
 
 /*
 QOA Packet Protocol
