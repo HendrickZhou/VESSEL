@@ -169,27 +169,10 @@ class AudioReceiverCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDele
     
         print("L2CAP channel opened successfully. Awaiting data packets.")
         
-        
         // Check MTU size
 //        self.negotiatedMTU = channel.inputStream?.property(forKey: .dataWrittenToMemoryStreamKey) as? Int ?? 512
 //        print("Negotiated MTU size: \(self.negotiatedMTU) bytes")
-//        sendMTUToPeripheral()
     }
-    
-
-//    func sendMTUToPeripheral() {
-//        guard let outputStream = l2capChannel?.outputStream else { return }
-//
-//        let mtuPayload = Data([UInt8(negotiatedMTU >> 8), UInt8(negotiatedMTU & 0xFF)])
-//        let controlMessage = L2CAPMessage(type: .control, payload: mtuPayload)
-//        
-//        let messageData = controlMessage.toData()
-//        messageData.withUnsafeBytes { buffer in
-//            guard let bytes = buffer.baseAddress?.assumingMemoryBound(to: UInt8.self) else {return}
-//            outputStream.write(bytes, maxLength: messageData.count)
-//        }
-//        print("MTU size \(negotiatedMTU) bytes sent as control message via L2CAP")
-//    }
 
     // Disconnect and clean up
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
@@ -202,17 +185,59 @@ class AudioReceiverCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDele
 
 extension AudioReceiverCentral: StreamDelegate {
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-        if eventCode == .hasBytesAvailable, let inputStream = aStream as? InputStream {
-            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: negotiatedMTU)
-            defer { buffer.deallocate() }
-
-            let bytesRead = inputStream.read(buffer, maxLength: negotiatedMTU)
-            if bytesRead > 0 {
-                let receivedData = Data(bytes: buffer, count: bytesRead)
-                let receivedString = String(data: receivedData, encoding: .utf8) ?? ""
-                print("Received Data: \(receivedString)")
-                delegate?.didReceiveL2CAPData(data: receivedString)
+        print("Stream status: \(aStream.streamStatus.rawValue)")
+        switch eventCode {
+        case .openCompleted:
+            print("Stream opened successfully.")
+        
+        case .hasBytesAvailable:
+            guard let inputStream = aStream as? InputStream else {
+                print("Stream is not an InputStream.")
+                return
             }
+            // Dynamically read all available data
+            var receivedData = Data()
+            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024) // Temporary buffer
+            defer { buffer.deallocate() }
+            
+            while inputStream.hasBytesAvailable {
+                let bytesRead = inputStream.read(buffer, maxLength: 1024) // Read up to 1024 bytes at a time
+                if bytesRead > 0 {
+                    receivedData.append(buffer, count: bytesRead)
+                } else if bytesRead == 0 {
+                    print("No more data available in stream.")
+                    break
+                } else {
+                    print("Error reading from input stream.")
+                    break
+                }
+            }
+            
+            if !receivedData.isEmpty {
+                print("Received Data: \(receivedData.count) bytes")
+                
+                let rawData = receivedData.map { $0 }
+                print("Raw Data (UInt8): \(rawData)")
+                delegate?.didReceiveL2CAPData(data: rawData.map { String($0) }.joined(separator: " "))
+            }
+        
+        case .hasSpaceAvailable:
+            print("Stream has space available for writing.")
+        
+        case .errorOccurred:
+            if let streamError = aStream.streamError {
+                print("Stream error occurred: \(streamError.localizedDescription)")
+            } else {
+                print("Unknown stream error occurred.")
+            }
+        
+        case .endEncountered:
+            print("Stream has reached its end.")
+//            aStream.close()
+//            aStream.remove(from: .current, forMode: .default)
+        
+        default:
+            print("Unhandled stream event: \(eventCode)")
         }
     }
 }
