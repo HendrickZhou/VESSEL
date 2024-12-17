@@ -24,6 +24,7 @@ extension BLEManager: AudioReceiverDelegate {
                 self.isL2CAPConnected = false
                 self.l2capData = ""
                 self.discoveredDevices.removeAll()
+                self.startBLEDiscovery()  // automatically restart discovery
             }
         }
     }
@@ -31,6 +32,7 @@ extension BLEManager: AudioReceiverDelegate {
     func didReceiveL2CAPData(data: String) {
         DispatchQueue.main.async {
             self.l2capData += data
+//            audioPlaybackManager?.play(data: data)
         }
     }
 

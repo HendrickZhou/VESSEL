@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreBluetooth
+import AVFoundation
 
 protocol AudioReceiverDelegate: AnyObject {
     func didReadyForAdv()
@@ -23,7 +24,8 @@ class BLEManager: NSObject, ObservableObject {
     @Published var isL2CAPConnected = false
     @Published var l2capData = ""
     @Published var discoveredDevices: [CBPeripheral] = []
-
+    
+//    private var audioPlaybackManager: AudioPlaybackManager? = AudioPlaybackManager()
     private var audioReceiver: AudioReceiverCentral?
 
     override init() {
@@ -69,13 +71,19 @@ class AudioReceiverCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDele
     var l2capChannel: CBL2CAPChannel?
     var receivedDataBuffer = Data()
     var negotiatedMTU: Int = 512
+
+    var incompleteFrameBuffer = Data()
+    var expectedFrameLength: Int?
+    private var pcmPlayer: PCMPlayer
+
     
     weak var delegate: AudioReceiverDelegate?
-    
+        
     // Replace with your actual PSM value provided by the hardware
     let l2capPSM: CBL2CAPPSM = 0x0041
 
     override init() {
+        pcmPlayer = PCMPlayer()
         super.init()
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
     }
@@ -166,12 +174,7 @@ class AudioReceiverCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDele
         channel.inputStream?.schedule(in: .current, forMode: .default)
         channel.inputStream?.open()
         
-    
         print("L2CAP channel opened successfully. Awaiting data packets.")
-        
-        // Check MTU size
-//        self.negotiatedMTU = channel.inputStream?.property(forKey: .dataWrittenToMemoryStreamKey) as? Int ?? 512
-//        print("Negotiated MTU size: \(self.negotiatedMTU) bytes")
     }
 
     // Disconnect and clean up
@@ -182,7 +185,6 @@ class AudioReceiverCentral: NSObject, CBCentralManagerDelegate, CBPeripheralDele
     }
 }
 
-
 extension AudioReceiverCentral: StreamDelegate {
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
         print("Stream status: \(aStream.streamStatus.rawValue)")
@@ -191,18 +193,18 @@ extension AudioReceiverCentral: StreamDelegate {
             print("Stream opened successfully.")
         
         case .hasBytesAvailable:
+            print("status: hasBytesAvailable")
             guard let inputStream = aStream as? InputStream else {
                 print("Stream is not an InputStream.")
                 return
             }
             // Dynamically read all available data
             var receivedData = Data()
-            let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: 1024) // Temporary buffer
-            defer { buffer.deallocate() }
-            
+            var buffer = [UInt8](repeating: 0, count: 1024) // Temperary buffer
             while inputStream.hasBytesAvailable {
-                let bytesRead = inputStream.read(buffer, maxLength: 1024) // Read up to 1024 bytes at a time
+                let bytesRead = inputStream.read(&buffer, maxLength: buffer.count) // Read up to 1024 bytes at a time
                 if bytesRead > 0 {
+                    processReceivedData(Data(buffer[0..<bytesRead]))
                     receivedData.append(buffer, count: bytesRead)
                 } else if bytesRead == 0 {
                     print("No more data available in stream.")
@@ -216,9 +218,10 @@ extension AudioReceiverCentral: StreamDelegate {
             if !receivedData.isEmpty {
                 print("Received Data: \(receivedData.count) bytes")
                 
-                let rawData = receivedData.map { $0 }
-                print("Raw Data (UInt8): \(rawData)")
-                delegate?.didReceiveL2CAPData(data: rawData.map { String($0) }.joined(separator: " "))
+//                let rawData = receivedData.map { $0 }
+//                print("Raw Data (UInt8): \(rawData)")
+//                delegate?.didReceiveL2CAPData(data: rawData.map { String($0) }.joined(separator: " "))
+//                delegate?.didReceiveL2CAPData(data: String)
             }
         
         case .hasSpaceAvailable:
@@ -233,111 +236,53 @@ extension AudioReceiverCentral: StreamDelegate {
         
         case .endEncountered:
             print("Stream has reached its end.")
-//            aStream.close()
-//            aStream.remove(from: .current, forMode: .default)
+            aStream.close()
+            aStream.remove(from: .current, forMode: .default)
         
         default:
             print("Unhandled stream event: \(eventCode)")
         }
     }
-}
 
-// Stream delegate for handling incoming L2CAP data
-//extension AudioReceiverCentral: StreamDelegate {
-//    func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
-//        guard let inputStream = aStream as? InputStream else { return }
-//
-//        switch eventCode {
-//        case .hasBytesAvailable:
-//            var buffer = [UInt8](repeating: 0, count: negotiatedMTU) // Use MTU for buffer size
-//            let bytesRead = inputStream.read(&buffer, maxLength: buffer.count)
-//            
-//            if bytesRead > 0 {
-//                // Append data and process the packet
-//                let data = Data(buffer.prefix(bytesRead))
-//                processIncomingData(data)
-//            }
-//            
-//        case .endEncountered:
-//            print("Stream ended.")
-//            inputStream.close()
-//            inputStream.remove(from: .current, forMode: .default)
-//            
-//        case .errorOccurred:
-//            print("Stream error occurred.")
-//            
-//        default:
-//            break
-//        }
-//    }
-//
-//    private func processIncomingData(_ data: Data) {
-//        /*
-//         extract message from streaming
-//         */
-//        receivedDataBuffer.append(data)
-//        
-//        while receivedDataBuffer.count >= 4 { // Minimum size for a complete message
-//            // Peek into the buffer to determine the payload length
-//            let length = UInt16(receivedDataBuffer[1]) << 8 | UInt16(receivedDataBuffer[2])
-//            let totalMessageSize = Int(length) + 4
-//            
-//            // Wait until a complete message is available
-//            if receivedDataBuffer.count < totalMessageSize { break }
-//            
-//            // Extract and process the complete message
-//            let messageData = receivedDataBuffer.prefix(totalMessageSize)
-//            receivedDataBuffer.removeFirst(totalMessageSize)
-//            
-//            if let message = L2CAPMessage(data: messageData) {
-//                handleL2CAPMessage(message)
-//            } else {
-//                print("Invalid L2CAP message received.")
-//            }
-//        }
-//    }
-//    
-//    private func handleL2CAPMessage(_ message: L2CAPMessage) {
-//        /*
-//         deal with different types of message
-//         */
-//        switch message.type {
-//        case .control:
-//            print("Received control message: \(message.payload)")
-//            // Process control-specific logic
-//        case .data:
-//            print("Received data message: \(message.payload.count) bytes")
-//            // Handle data payload (e.g., reassemble audio frames)
-//            var qoaHandler = QOAFrameHandler()
-//            if let frameData = qoaHandler.addPacket(message.payload) {
-//                // add packet until a complete frame is done
-//                handleCompleteFrame(frameData)
-//            }
-//        case .error:
-//            print("Received error message: \(message.payload)")
-//            // Handle error-specific logic
-//        case .ack:
-//            print("Received acknowledgment message.")
-//            // Handle acknowledgment
-//        case .info:
-//            print("Received info message: \(message.payload)")
-//            // Handle info-specific logic
-//            handleAudioMetaInfo(message.payload)
-//        }
-//    }
-//
-//    private func handleCompleteFrame(_ frameData: Data) {
-//        /*
-//         deal with complete frame
-//         */
-//        // TODO
-//        // Placeholder for processing the reassembled QOA frame
-//        // Consider parsing headers for control/error detection if included
-//        print("Received complete frame of size: \(frameData.count) bytes")
-//        // Insert code for decoding or playback of QOA audio here
-//    }
-//    
-//    private func handleAudioMetaInfo(_ metaData: Data) {
-//        // deal with audio metat data, like sampling rate, channels etc
-//    }
-//}
+    private func processReceivedData(_ data: Data) {
+        // Append new data to buffer
+        incompleteFrameBuffer.append(data)
+
+        while true {
+            // Check if we are waiting for the header
+            if expectedFrameLength == nil {
+                // Ensure we have enough data for the header (3 bytes in this case)
+//                if incompleteFrameBuffer.count >= 1 {
+//                    var controlBit = Int(incompleteFrameBuffer.prefix(1).withUnsafeBytes(<#T##body: (UnsafeRawBufferPointer) throws -> ResultType##(UnsafeRawBufferPointer) throws -> ResultType#>))
+//                }
+                if incompleteFrameBuffer.count >= 2 {
+                    expectedFrameLength = Int(incompleteFrameBuffer.prefix(2).withUnsafeBytes { $0.load(as: UInt16.self) })
+                    print("Detected frame length: \(expectedFrameLength!)")
+                    incompleteFrameBuffer.removeFirst(2)
+                } else {
+                    // Wait for more data
+                    break
+                }
+            }
+            
+            // Check if the full frame is available
+            if let frameLength = expectedFrameLength, incompleteFrameBuffer.count >= frameLength {
+                let frameData = incompleteFrameBuffer.prefix(frameLength)
+                incompleteFrameBuffer.removeFirst(frameLength)
+                expectedFrameLength = nil
+                
+                // Process the complete frame
+                handleCompleteFrame(frameData)
+            } else {
+                // Wait for more data
+                break
+            }
+        }
+    }
+
+    private func handleCompleteFrame(_ frameData: Data) {
+        print("Complete frame received: \(frameData.count) bytes")
+        pcmPlayer.playPCMData(frameData)
+    }
+
+}

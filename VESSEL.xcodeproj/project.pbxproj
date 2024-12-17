@@ -16,6 +16,7 @@
 		C8837EAA2CED28AB0048B213 /* CustomProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8837EA92CED28AB0048B213 /* CustomProtocol.swift */; };
 		C8903B9F2D08A42D0025A964 /* extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8903B9E2D08A42D0025A964 /* extension.swift */; };
 		C8903BA22D090B420025A964 /* QOA in Frameworks */ = {isa = PBXBuildFile; productRef = C8903BA12D090B420025A964 /* QOA */; };
+		C8903BA42D10D9650025A964 /* playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8903BA32D10D9650025A964 /* playback.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		C8837EA92CED28AB0048B213 /* CustomProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomProtocol.swift; sourceTree = "<group>"; };
 		C8837EAE2CEF95CC0048B213 /* QOA */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = QOA; path = ../QOA; sourceTree = "<group>"; };
 		C8903B9E2D08A42D0025A964 /* extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = extension.swift; sourceTree = "<group>"; };
+		C8903BA32D10D9650025A964 /* playback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = playback.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +72,7 @@
 				C8837EA92CED28AB0048B213 /* CustomProtocol.swift */,
 				C8837EA72CEC66C40048B213 /* Codec.swift */,
 				C8903B9E2D08A42D0025A964 /* extension.swift */,
+				C8903BA32D10D9650025A964 /* playback.swift */,
 				C8837E982CEC280C0048B213 /* Assets.xcassets */,
 				C8837E9A2CEC280C0048B213 /* Preview Content */,
 			);
@@ -169,6 +172,7 @@
 			files = (
 				C8837EA82CEC66C40048B213 /* Codec.swift in Sources */,
 				C8837E972CEC28090048B213 /* ContentView.swift in Sources */,
+				C8903BA42D10D9650025A964 /* playback.swift in Sources */,
 				C8837EAA2CED28AB0048B213 /* CustomProtocol.swift in Sources */,
 				C8903B9F2D08A42D0025A964 /* extension.swift in Sources */,
 				C8837E952CEC28090048B213 /* VESSELApp.swift in Sources */,
