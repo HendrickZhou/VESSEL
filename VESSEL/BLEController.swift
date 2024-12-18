@@ -245,40 +245,49 @@ extension AudioReceiverCentral: StreamDelegate {
     }
 
     private func processReceivedData(_ data: Data) {
-        // Append new data to buffer
+        // Append new data to the buffer
         incompleteFrameBuffer.append(data)
 
         while true {
-            // Check if we are waiting for the header
+            // Step 1: Check if we are waiting for the header
             if expectedFrameLength == nil {
-                // Ensure we have enough data for the header (3 bytes in this case)
-//                if incompleteFrameBuffer.count >= 1 {
-//                    var controlBit = Int(incompleteFrameBuffer.prefix(1).withUnsafeBytes(<#T##body: (UnsafeRawBufferPointer) throws -> ResultType##(UnsafeRawBufferPointer) throws -> ResultType#>))
-//                }
-                if incompleteFrameBuffer.count >= 2 {
-                    expectedFrameLength = Int(incompleteFrameBuffer.prefix(2).withUnsafeBytes { $0.load(as: UInt16.self) })
-                    print("Detected frame length: \(expectedFrameLength!)")
-                    incompleteFrameBuffer.removeFirst(2)
-                } else {
-                    // Wait for more data
+                // Ensure at least 3 bytes are available for the header
+                guard incompleteFrameBuffer.count >= 3 else {
+                    print("Not enough data for the header. Waiting for more data.")
                     break
                 }
+
+                // Extract the control bit and frame length from the first 3 bytes
+                let controlBit = incompleteFrameBuffer[0]
+                let lengthLSB = UInt16(incompleteFrameBuffer[1]) // Least significant byte
+                let lengthMSB = UInt16(incompleteFrameBuffer[2]) // Most significant byte
+                expectedFrameLength = Int((lengthMSB << 8) | lengthLSB) // Combine bytes
+
+                print("Control Bit: \(controlBit)")
+                print("Detected frame length: \(expectedFrameLength!)")
+
+                // Remove the processed header (3 bytes) from the buffer
+                incompleteFrameBuffer.removeSubrange(0..<3)
             }
-            
-            // Check if the full frame is available
+
+            // Step 2: Check if the full frame is available
             if let frameLength = expectedFrameLength, incompleteFrameBuffer.count >= frameLength {
-                let frameData = incompleteFrameBuffer.prefix(frameLength)
-                incompleteFrameBuffer.removeFirst(frameLength)
+                // Extract the frame data
+                let frameData = incompleteFrameBuffer[0..<frameLength]
+                incompleteFrameBuffer.removeSubrange(0..<frameLength)
+
+                // Reset expectedFrameLength for the next frame
                 expectedFrameLength = nil
-                
+
                 // Process the complete frame
                 handleCompleteFrame(frameData)
             } else {
-                // Wait for more data
+                // Not enough data for the full frame, wait for more
                 break
             }
         }
     }
+
 
     private func handleCompleteFrame(_ frameData: Data) {
         print("Complete frame received: \(frameData.count) bytes")
